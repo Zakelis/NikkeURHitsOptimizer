@@ -34,7 +34,7 @@ def main():
     print("Meilleure combinaison :", best_combination)
     print("Somme des dégâts :", best_sum)
 
-    rows = SheetParser.parse_tsv("C:/Users/stany/Downloads/SOLACE UNION RAID AVAILABILITY v - MOCK HARD BOSSES HERE.tsv")
+    rows = SheetParser.parse_tsv("./sheetData.tsv")
     for row, value in rows.items():
         print(row, value)
 
