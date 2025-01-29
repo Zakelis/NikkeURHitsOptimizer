@@ -41,6 +41,7 @@ def main():
         print(row)
 
     summary = Summary()
+    summary.feedBossesList()
     summary.feedPlayerHits(parsedSheetData)
 
 
