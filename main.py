@@ -1,5 +1,6 @@
 from itertools import combinations
 import SheetParser
+from Summary import Summary
 
 def find_closest_combination(numbers, target):
     closest_combination = None
@@ -34,9 +35,14 @@ def main():
     print("Meilleure combinaison :", best_combination)
     print("Somme des dégâts :", best_sum)
 
-    rows = SheetParser.parse_tsv("./sheetData.tsv")
-    for row, value in rows.items():
-        print(row, value)
+    print("Print the result of sheet parsing :")
+    parsedSheetData = SheetParser.parseCSV("./sheetData.csv")
+    for row in parsedSheetData:
+        print(row)
+
+    summary = Summary()
+    summary.feedPlayerHits(parsedSheetData)
+
 
 # Appel de la fonction main
 if __name__ == "__main__":
