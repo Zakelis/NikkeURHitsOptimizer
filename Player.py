@@ -29,7 +29,7 @@ class Player:
         p4 = Utilities.getNthListItem(hitLine, 5)
         p5 = Utilities.getNthListItem(hitLine, 6)
         bossName = Utilities.getLastListItem(hitLine)
-        hit = Hit(dmg, p1, p2, p3, p4, p5, bossName)
+        hit = Hit(self.name, dmg, p1, p2, p3, p4, p5, bossName)
 
         if bossName == self.bossesNames[0]:
             self.hits[0][1].append(hit)
@@ -66,8 +66,7 @@ class Player:
 
         print("Dumping strongest hits for player on boss", bossName)
         for hit in sortedHitsByStrongest:
-            print("Hit against", hit.bossName, ":", hit.dmg, "with comp :", hit.returnCompString(), ", weight :",
-                  hit.weight)
+            hit.dumpInfo()
 
     def dumpBossHits(self, bossName):
         bossHits = []
@@ -84,14 +83,12 @@ class Player:
 
         print("Dumping hits for player on boss", bossName)
         for hit in bossHits:
-            print("Hit against", hit.bossName, ":", hit.dmg, "with comp :", hit.returnCompString(), ", weight :",
-                  hit.weight)
+            hit.dumpInfo()
 
     def dumpAllHitsFromList(self, hitList):
         print("Dumping all hits from list for player", self.name)
         for hit in hitList:
-            print("Hit against", hit.bossName, ":", hit.dmg, "with comp :", hit.returnCompString(), ", weight :",
-                  hit.weight)
+            hit.dumpInfo()
 
     def dumpAllHits(self):
         print("Dumping all hits for player", self.name)
@@ -137,14 +134,11 @@ class Player:
 
         return allHitsList
 
-    def dumpHitsPvt(self):
-        self.dumpHits(self.hits)
-
     def adjustMeanOfHitsWeights(self):
         total = 0
         allHits = self.getAllHits()
         for hit in allHits:
-            total += hit.weight
+            total += hit.playerWeight
 
         self.meanOfHitsWeights = total / self.getNumberOfAllHits()
 
@@ -157,6 +151,6 @@ class Player:
 
         for boss in self.hits:
             for hit in boss[1]:
-                hit.weight = hit.dmg / highestHit
+                hit.playerWeight = hit.dmg / highestHit
 
         self.adjustMeanOfHitsWeights()

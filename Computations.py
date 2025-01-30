@@ -125,11 +125,36 @@ class Computations:
         for player in self.players:
             player.feedAllHits(parsedHits)
 
-        for player in self.players:
-            player.adjustHitsWeights()
+        #for player in self.players:
+        #    player.adjustHitsWeights()
+
+        #for player in self.players:
+        #    player.dumpAllHitsByStrongestHit()
 
 
     def feedPlayerHits(self, parsedHits):
         print("feedPlayerHits START")
         self.feedPlayersArray(parsedHits)
         self.feedAllStartingHits(parsedHits)
+
+    def initBossHits(self, boss):
+        print("Starting gen hits for boss :", boss.name)
+        bossHits = []
+        for player in self.players:
+            hitList = player.getBossHits(boss.name)
+            for hit in hitList:
+                bossHits.append(hit)
+        boss.genHits(bossHits)
+        print("Correctly gen hits for boss :", boss.name)
+
+
+    def computeOptimalHits(self, boss):
+        best_combination = boss.findClosestCombination()
+        print("Meilleure combinaison :", best_combination)
+
+    def genSolutions(self):
+        for boss in self.bosses:
+            if boss.hp < 137302384800: #  Failsafe, only treat T1 for now
+                self.initBossHits(boss)
+                self.computeOptimalHits(boss)
+                print()
