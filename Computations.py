@@ -4,7 +4,7 @@ from Player import Player
 from Hit import Hit
 
 
-class Summary:
+class Computations:
     def __init__(self):
         #  Computation-related containers
         self.players = []  # List of players that mocked
@@ -80,16 +80,16 @@ class Summary:
         self.B5Name = "Gravedigger"
 
     def feedBossesHPs(self):
-        self.B1T1HP = 29225662800 * self.bossesHPMarginError
-        self.B2T1HP = 29225662800 * self.bossesHPMarginError
-        self.B3T1HP = 65385671800 * self.bossesHPMarginError
-        self.B4T1HP = 29225662800 * self.bossesHPMarginError
-        self.B5T1HP = 47553215600 * self.bossesHPMarginError
-        self.B1T2HP = 137302384800 * self.bossesHPMarginError
-        self.B2T2HP = 137302384800 * self.bossesHPMarginError
-        self.B3T2HP = 207407492800 * self.bossesHPMarginError
-        self.B4T2HP = 137302384800 * self.bossesHPMarginError
-        self.B5T2HP = 140841813600 * self.bossesHPMarginError
+        self.B1T1HP = int(29225662800 * self.bossesHPMarginError)
+        self.B2T1HP = int(29225662800 * self.bossesHPMarginError)
+        self.B3T1HP = int(65385671800 * self.bossesHPMarginError)
+        self.B4T1HP = int(29225662800 * self.bossesHPMarginError)
+        self.B5T1HP = int(47553215600 * self.bossesHPMarginError)
+        self.B1T2HP = int(137302384800 * self.bossesHPMarginError)
+        self.B2T2HP = int(137302384800 * self.bossesHPMarginError)
+        self.B3T2HP = int(207407492800 * self.bossesHPMarginError)
+        self.B4T2HP = int(137302384800 * self.bossesHPMarginError)
+        self.B5T2HP = int(140841813600 * self.bossesHPMarginError)
 
     def feedBossesList(self):
         self.feedBossesNames()
@@ -127,7 +127,6 @@ class Summary:
 
         for player in self.players:
             player.adjustHitsWeights()
-
 
 
     def feedPlayerHits(self, parsedHits):

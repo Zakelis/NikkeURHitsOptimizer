@@ -1,6 +1,6 @@
 from itertools import combinations
 import SheetParser
-from Summary import Summary
+from Computations import Computations
 
 def find_closest_combination(numbers, target):
     closest_combination = None
@@ -40,9 +40,9 @@ def main():
     for row in parsedSheetData:
         print(row)
 
-    summary = Summary()
-    summary.feedBossesList()
-    summary.feedPlayerHits(parsedSheetData)
+    computations = Computations()
+    computations.feedBossesList()
+    computations.feedPlayerHits(parsedSheetData)
 
 
 # Appel de la fonction main
