@@ -25,7 +25,7 @@ class Boss:
 
         somme_actuelle = 0
         combinaison = []
-            # Sélection gloutonne des nombres les plus grands possibles
+
         for nombre in nombres:
             if somme_actuelle + nombre <= cible:
                 combinaison.append(nombre)
@@ -38,6 +38,11 @@ class Boss:
         # Vérification finale
         print("Ended hits computation for boss :", self.name)
         print("Combinaison", combinaison, "total", sum(combinaison), "vs target", self.hp, ":", self.hp - sum(combinaison))
+
+        #  TODO post-process to run 1 or 2 lowest hits to complete the boss ?
+        #  TODO only take the biggest hit from a player, not multiple per boss
+        #  TODO player/boss weight on an attempt
+        #  TODO remove used hits from this boss and other hits on other boss using at least 1 nikke of the used comp
         return combinaison
 
     def dumpHits(self):
