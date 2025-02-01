@@ -1,3 +1,11 @@
+def getReversedList(l):
+    return l[::-1]
+
+def filterSubList(ref, toKeep):
+    refSet = set(ref)
+    setToKeep = set(toKeep)
+    return [elem for elem in refSet if elem not in setToKeep]
+
 def getLastListItem(listData):
     return listData[-1] if listData else None
 

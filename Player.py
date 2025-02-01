@@ -4,14 +4,21 @@ import Utilities
 
 class Player:
     def __init__(self, name, b1Name, b2Name, b3Name, b4Name, b5Name):
-        # Définition des variables membres
         self.name = name
-        self.synchro = 0  # Variable membre avec une valeur initiale
+        self.synchro = 0
+        self.allHits = []
         self.hits = []
         self.bossesNames = [b1Name, b2Name, b3Name, b4Name, b5Name]
         self.meanOfHitsWeights = 1
+        self.hitsLeft = 3
 
     def feedAllHits(self, hitLines):
+        self.allHits.append([self.bossesNames[0], []])
+        self.allHits.append([self.bossesNames[1], []])
+        self.allHits.append([self.bossesNames[2], []])
+        self.allHits.append([self.bossesNames[3], []])
+        self.allHits.append([self.bossesNames[4], []])
+
         self.hits.append([self.bossesNames[0], []])
         self.hits.append([self.bossesNames[1], []])
         self.hits.append([self.bossesNames[2], []])
@@ -32,22 +39,26 @@ class Player:
         hit = Hit(self.name, dmg, p1, p2, p3, p4, p5, bossName)
 
         if bossName == self.bossesNames[0]:
+            self.allHits[0][1].append(hit)
             self.hits[0][1].append(hit)
         if bossName == self.bossesNames[1]:
+            self.allHits[1][1].append(hit)
             self.hits[1][1].append(hit)
         if bossName == self.bossesNames[2]:
+            self.allHits[2][1].append(hit)
             self.hits[2][1].append(hit)
         if bossName == self.bossesNames[3]:
+            self.allHits[3][1].append(hit)
             self.hits[3][1].append(hit)
         if bossName == self.bossesNames[4]:
+            self.allHits[4][1].append(hit)
             self.hits[4][1].append(hit)
 
+    def dumpHitsByStrongestHit(self):
+        hitsList = self.getHits()
 
-    def dumpAllHitsByStrongestHit(self):
-        allHitsList = self.getAllHits()
-
-        sortedHitsByStrongest = sorted(allHitsList, key=lambda obj: obj.dmg, reverse=True)
-        self.dumpAllHitsFromList(sortedHitsByStrongest)
+        sortedHitsByStrongest = sorted(hitsList, key=lambda obj: obj.dmg, reverse=True)
+        self.dumpHitsFromList(sortedHitsByStrongest)
 
     def dumpBossHitsByStrongestHit(self, bossName):
         bossHits = []
@@ -85,12 +96,12 @@ class Player:
         for hit in bossHits:
             hit.dumpInfo()
 
-    def dumpAllHitsFromList(self, hitList):
+    def dumpHitsFromList(self, hitList):
         print("Dumping all hits from list for player", self.name)
         for hit in hitList:
             hit.dumpInfo()
 
-    def dumpAllHits(self):
+    def dumpHits(self):
         print("Dumping all hits for player", self.name)
         for boss in self.hits:
             self.dumpBossHits(boss[0])
@@ -111,7 +122,7 @@ class Player:
         return 0
 
     def getNumberOfAllHits(self):
-        return self.getAllHits().__len__()
+        return self.getHits().__len__()
 
     def getBossHits(self, bossName):
         if bossName == self.bossesNames[0]:
@@ -126,7 +137,7 @@ class Player:
             return self.hits[4][1]
         return []
 
-    def getAllHits(self):
+    def getHits(self):
         allHitsList = []
         for bosses in self.hits:
             for hit in bosses[1]:
@@ -136,7 +147,7 @@ class Player:
 
     def adjustMeanOfHitsWeights(self):
         total = 0
-        allHits = self.getAllHits()
+        allHits = self.getHits()
         for hit in allHits:
             total += hit.playerWeight
 

@@ -9,11 +9,26 @@ class Hit:
         self.p5 = p5
         self.bossName = bossName
         self.playerWeight = 1
-        self.bossWeight = 0.42
+        self.bossWeight = 1
+
+    def getInfoInHitRoute(self, currDmg, hitIndex, isLast, bossHP):
+        hitDmgPercentage = round(self.dmg / bossHP * 100, 3)
+        hpLeft = max(bossHP - currDmg, 0)
+        hpLeftPercentage = round(max(hpLeft / bossHP * 100, 0), 3)
+        isLastText = ""
+        if isLast is True:
+            isLastText = " --- KILL - Hit restored."
+        return (str(hitIndex) + " : " + str(self.playerName) + " --- " + self.returnCompString() +
+                " --- DMG : " + str(self.dmg) + " (" + str(hitDmgPercentage) + " %)" +
+                " --- HP LEFT : " + str(hpLeft) + " (" + str(hpLeftPercentage) + " %)" +
+                isLastText)
+
+    def dumpHitStatusInHitRoute(self, currDmg, hitIndex, isLast, bossHP):
+        print(self.getInfoInHitRoute(currDmg, hitIndex, isLast, bossHP))
 
     def getInfo(self):
-        return (self.playerName + " hit against " + self.bossName + " : " + str(self.dmg) + " with comp :" + self.returnCompString() +
-                " --- Player weight : " + str(self.playerWeight) + " --- Boss weight : " + str(self.bossWeight))
+        return (self.playerName + " hit against " + self.bossName + " : " + str(self.dmg) + " with comp : " + self.returnCompString() +
+                " --- Player weight : " + str(round(self.playerWeight, 3)) + " --- Boss weight : " + str(round(self.bossWeight, 3)))
 
     def dumpInfo(self):
         print(self.getInfo())
