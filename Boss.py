@@ -9,18 +9,23 @@ class Boss:
         self.availableHits = []  # Sum of all hits against this boss
         self.finalHits = []
 
-    def dumpHitRoute(self):
+    def dumpHitRoute(self, players, errorMarginPercentage, maxOverkillPercentage):
         print("*** HIT ROUTE FOR", self.name, "***")
         print()
-        print("Target HP : " + str(self.hp))
+        print("Final target HP : " + str(self.hp) + " (+" + str(round((errorMarginPercentage * 100) - 100, 1)) + "% error margin from base MAX HP)")
+        print("Max allowed overkill percentage : " + str(round((maxOverkillPercentage * 100) - 100, 1)) + "%")
         print()
         currDmg = 0
         isLast = False
+        playerHitCount = 3
         for hitIndex, hit in enumerate(self.finalHits):
             if hitIndex is len(self.finalHits) - 1:
                 isLast = True
             currDmg += hit.dmg
-            hit.dumpHitStatusInHitRoute(currDmg, hitIndex + 1, isLast, self.hp)
+            for player in players:
+                if player.name is hit.playerName:
+                    playerHitCount = player.hitsLeft
+            hit.dumpHitStatusInHitRoute(playerHitCount, currDmg, hitIndex + 1, isLast, self.hp)
 
         print()
         overkillDmg = abs(self.hp - currDmg)
@@ -28,6 +33,7 @@ class Boss:
         print("Overkill damage : " + str(overkillDmg) + " (" + str(overkillDmgPercentage) + " %)")
         print()
         print("*******************************")
+        return self.finalHits
 
     def getClosestValidHitFromAnotherPlayer(self, combinaison, hitsLeft, currHit, players):
         playerName = currHit.playerName
@@ -54,28 +60,28 @@ class Boss:
 
     def determineLastHits(self, hitsLeft, HP):
         print("Starting LAST hits computation for boss :", self.name, "remaining HP :", HP, "remaining hits :")
-        for hit in hitsLeft:
-            hit.dumpInfo()
+        #for hit in hitsLeft:
+        #    hit.dumpInfo()
         somme_actuelle = 0
         lastHits = []
         # First pass : Try to find a suitable hit
 
         for hit in hitsLeft:
-            print("Somme actuelle :", somme_actuelle, "Scanning hit dmg :", hit.dmg, "HP :", HP)
-            if somme_actuelle + hit.dmg <= HP * 1.2:
-                print("Hit accepted, remaining dmg to reach target :", HP - (somme_actuelle + hit.dmg))
+        #    print("Somme actuelle :", somme_actuelle, "Scanning hit dmg :", hit.dmg, "HP :", HP)
+            if somme_actuelle + hit.dmg <= HP * 1.5:
+        #        print("Hit accepted, remaining dmg to reach target :", HP - (somme_actuelle + hit.dmg))
                 lastHits.append(hit)
                 somme_actuelle += hit.dmg
                 if somme_actuelle > HP:
                     return lastHits
-            else:
-                print("Hit rejected, mult was :", (somme_actuelle + hit.dmg) / HP)
+        #    else:
+        #        print("Hit rejected, mult was :", (somme_actuelle + hit.dmg) / HP)
         return []
 
-    def findClosestCombination(self, players):
+    def findClosestCombination(self, players, maxOverkillPercentage):
         print("Starting hits computation for boss :", self.name, "HP :", self.hp, "available hits :")
-        for hit in self.availableHits:
-            hit.dumpInfo()
+        #for hit in self.availableHits:
+        #    hit.dumpInfo()
 
         nombres = []
         totalPossible = 0
@@ -109,7 +115,7 @@ class Boss:
 
                         #  If the overkill damage is acceptable, accept both hits as finishers
                         print("Overflow of curr hit + next strongest hit is  :", overflow)
-                        if overflow < 1.1:
+                        if overflow < maxOverkillPercentage:
                             print("Overflow of curr hit + next strongest hit is acceptable :", overflow, "%. Accept both hits")
                             combinaison.append(hit)
                             combinaison.append(self.availableHits[hitIndex+1])
@@ -118,7 +124,7 @@ class Boss:
 
                         #  Second pass : Current hit can not finish the boss but also using the next strongest hit
                         #  would make too much of an overflow, skip this hit
-                        if overflow > 1.1:
+                        if overflow > maxOverkillPercentage:
                             continue
 
                         #  Second pass : We cannot use the next strongest hit, find the hit that rewards the player with the best attempt among the 5 bosses

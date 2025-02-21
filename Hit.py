@@ -11,7 +11,7 @@ class Hit:
         self.playerWeight = 1
         self.bossWeight = 1
 
-    def getInfoInHitRoute(self, currDmg, hitIndex, isLast, bossHP):
+    def getInfoInHitRoute(self, playerHitCount, currDmg, hitIndex, isLast, bossHP):
         hitDmgPercentage = round(self.dmg / bossHP * 100, 3)
         hpLeft = max(bossHP - currDmg, 0)
         hpLeftPercentage = round(max(hpLeft / bossHP * 100, 0), 3)
@@ -21,10 +21,10 @@ class Hit:
         return (str(hitIndex) + " : " + str(self.playerName) + " --- " + self.returnCompString() +
                 " --- DMG : " + str(self.dmg) + " (" + str(hitDmgPercentage) + " %)" +
                 " --- HP LEFT : " + str(hpLeft) + " (" + str(hpLeftPercentage) + " %)" +
-                isLastText)
+                isLastText + " --- HITS LEFT : " + str(playerHitCount))
 
-    def dumpHitStatusInHitRoute(self, currDmg, hitIndex, isLast, bossHP):
-        print(self.getInfoInHitRoute(currDmg, hitIndex, isLast, bossHP))
+    def dumpHitStatusInHitRoute(self, playerHitCount, currDmg, hitIndex, isLast, bossHP):
+        print(self.getInfoInHitRoute(playerHitCount, currDmg, hitIndex, isLast, bossHP))
 
     def getInfo(self):
         return (self.playerName + " hit against " + self.bossName + " : " + str(self.dmg) + " with comp : " + self.returnCompString() +
@@ -35,3 +35,8 @@ class Hit:
 
     def returnCompString(self):
         return self.p1 + "/" + self.p2 + "/" + self.p3 + "/" + self.p4 + "/" + self.p5
+
+    def isUsingConflictualComp(self, otherHit):
+        set_self = {self.p1, self.p2, self.p3, self.p4, self.p5}
+        set_otherHit = {otherHit.p1, otherHit.p2, otherHit.p3, otherHit.p4, otherHit.p5}
+        return not set_self.isdisjoint(set_otherHit)

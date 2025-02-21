@@ -9,10 +9,11 @@ class Computations:
         #  Computation-related containers
         self.players = []  # List of players that mocked
         self.remainingValidHits = []
-        self.bossesHits = []  # All final hits per boss
+        self.hitsDone = []  # Hits that were already done per boss
 
         #  Bosses data
-        self.bossesHPMarginError = 1.0
+        self.errorMarginPercentage = 1.025
+        self.maxOverkillPercentage = 1.1
 
         #  Bosses names
         self.B1Name = None
@@ -80,16 +81,16 @@ class Computations:
         self.B5Name = "Gravedigger"
 
     def feedBossesHPs(self):
-        self.B1T1HP = int(29225662800 * self.bossesHPMarginError)
-        self.B2T1HP = int(29225662800 * self.bossesHPMarginError)
-        self.B3T1HP = int(65385671800 * self.bossesHPMarginError)
-        self.B4T1HP = int(29225662800 * self.bossesHPMarginError)
-        self.B5T1HP = int(47553215600 * self.bossesHPMarginError)
-        self.B1T2HP = int(137302384800 * self.bossesHPMarginError)
-        self.B2T2HP = int(137302384800 * self.bossesHPMarginError)
-        self.B3T2HP = int(207407492800 * self.bossesHPMarginError)
-        self.B4T2HP = int(137302384800 * self.bossesHPMarginError)
-        self.B5T2HP = int(140841813600 * self.bossesHPMarginError)
+        self.B1T1HP = int(29225662800 * self.errorMarginPercentage)
+        self.B2T1HP = int(29225662800 * self.errorMarginPercentage)
+        self.B3T1HP = int(65385671800 * self.errorMarginPercentage)
+        self.B4T1HP = int(29225662800 * self.errorMarginPercentage)
+        self.B5T1HP = int(47553215600 * self.errorMarginPercentage)
+        self.B1T2HP = int(137302384800 * self.errorMarginPercentage)
+        self.B2T2HP = int(137302384800 * self.errorMarginPercentage)
+        self.B3T2HP = int(207407492800 * self.errorMarginPercentage)
+        self.B4T2HP = int(137302384800 * self.errorMarginPercentage)
+        self.B5T2HP = int(140841813600 * self.errorMarginPercentage)
 
     def feedBossesList(self):
         self.feedBossesNames()
@@ -168,37 +169,77 @@ class Computations:
             for hit in bossHits:
                 hit.bossWeight = (hit.dmg - lowestDmg) / (topDmg - lowestDmg)
 
-    def initBossHits(self, boss):
+    def initBossHits(self, ignoredHits, boss):
         print("Starting gen hits for boss :", boss.name)
         bossHits = []
+        # Feed all hits for this boss - TODO can be faster by doing a pre-filtering on comps
         for player in self.players:
+            # Build subset of ignored comps for this player
+            ignoredHitsOfPlayer = []
+            for ignoredHit in ignoredHits:
+                if ignoredHit.playerName is player.name:
+                    ignoredHitsOfPlayer.append(ignoredHit)
             hitList = player.getBossHits(boss.name)
             for hit in hitList:
-                bossHits.append(hit)
+                hasValidComp = True
+                # Ignore this his as a member of the comp was already used
+                for ignoredHit in ignoredHitsOfPlayer:
+                    if hit.isUsingConflictualComp(ignoredHit):
+                        hasValidComp = False
+                        break
+                if hasValidComp:
+                    bossHits.append(hit)
+
         boss.genHits(bossHits)
         print("Correctly gen hits for boss :", boss.name)
 
 
     def computeOptimalHits(self, boss):
-        best_combination = boss.findClosestCombination(self.players)
+        best_combination = boss.findClosestCombination(self.players, self.maxOverkillPercentage)
         print("Best combination for boss :", boss.name, "--- HP :", boss.hp)
         totalDmg = 0
         for hit in best_combination:
-            hit.dumpInfo()
+            #hit.dumpInfo()
             totalDmg += hit.dmg
 
         print("Total dmg :", totalDmg)
         print("Overkill dmg :", totalDmg - boss.hp)
         print("Overkill percentage :", round((totalDmg - boss.hp) / boss.hp * 100, 3), "%")
+        return best_combination
+
+    def dumpIgnoredHits(self):
+        for hit in self.hitsDone:
+            hit.dumpInfo()
+
+
+    def decrementPlayerHitCount(self, playerName):
+        for player in self.players:
+            if player.name == playerName:
+                player.hitsLeft -= 1
+
+    def updatePlayerHitCount(self, bossHits):
+         for hitIndex, hit in enumerate(bossHits):
+            if hitIndex is not len(bossHits) - 1:
+                self.decrementPlayerHitCount(hit.playerName)
+
+    def appendToIgnoredHits(self, bossHits):
+        for hit in bossHits:
+            self.hitsDone.append(hit)
 
     def genSolutions(self):
-        for boss in self.bosses:
-            if boss.hp < 137302384800: #  Failsafe, only treat T1 for now
-                self.initBossHits(boss)
+        for bossIndex, boss in enumerate(self.bosses):
+            if bossIndex <= 4: #  Failsafe, only treat T1 for now
+                self.initBossHits(self.hitsDone, boss)
                 self.updateHitPlayerWeight()
                 self.updateHitBossWeight(boss.name)
-                self.computeOptimalHits(boss)
+                bossHits = self.computeOptimalHits(boss)
+                self.updatePlayerHitCount(bossHits)
+                self.appendToIgnoredHits(bossHits)
                 print()
                 print()
-                boss.dumpHitRoute()
+                boss.dumpHitRoute(self.players, self.errorMarginPercentage, self.maxOverkillPercentage)
+                print()
+                #print("Dump done hits :")
+                print()
+                #self.dumpIgnoredHits()
                 print()
