@@ -54,6 +54,7 @@ class Boss:
     def hasPlayerAlreadyHit(self, combinaison, currHit):
         for okHit in combinaison:
             if okHit.playerName == currHit.playerName:
+                #print("Skip this hit, player", okHit.playerName, "has already hit")
                 return True
 
         return False
@@ -79,7 +80,7 @@ class Boss:
         return []
 
     def findClosestCombination(self, players, maxOverkillPercentage):
-        print("Starting hits computation for boss :", self.name, "HP :", self.hp, "available hits :")
+        #print("Starting hits computation for boss :", self.name, "HP :", self.hp, ",", str(len(self.availableHits)), "available hits :")
         #for hit in self.availableHits:
         #    hit.dumpInfo()
 
@@ -100,7 +101,9 @@ class Boss:
         combinaison = []
 
         for hitIndex, hit in enumerate(self.availableHits):
+            #print("Exploring hit by", hit.playerName, "dmg :", str(hit.dmg))
             if not self.canPlayerHit(hit, players):
+                #print("Skip this hit, player cannot hit")
                 continue
             if self.hasPlayerAlreadyHit(combinaison, hit):
                 continue
@@ -111,12 +114,20 @@ class Boss:
                     if somme_actuelle + hit.dmg + self.availableHits[hitIndex+1].dmg > cible:
 
                         #  First pass : Check if current hit can be associated with the next strongest hit
+                        if hit.playerName is self.availableHits[hitIndex+1].playerName:
+                            continue
+
+                        if self.hasPlayerAlreadyHit(combinaison, hit):
+                            continue
+                        if self.hasPlayerAlreadyHit(combinaison, self.availableHits[hitIndex+1]):
+                            continue
+
                         overflow = (somme_actuelle + hit.dmg + self.availableHits[hitIndex+1].dmg) / cible
 
                         #  If the overkill damage is acceptable, accept both hits as finishers
-                        print("Overflow of curr hit + next strongest hit is  :", overflow)
+                        #print("Overflow of curr hit + next strongest hit is  :", overflow)
                         if overflow < maxOverkillPercentage:
-                            print("Overflow of curr hit + next strongest hit is acceptable :", overflow, "%. Accept both hits")
+                            #print("Overflow of curr hit", str(hit.dmg), "+ next strongest hit", str(self.availableHits[hitIndex+1].dmg), "is acceptable :", overflow, "%. Accept both hits")
                             combinaison.append(hit)
                             combinaison.append(self.availableHits[hitIndex+1])
                             self.finalHits = Utilities.getReversedList(combinaison)
@@ -138,17 +149,17 @@ class Boss:
                             if self.hasPlayerAlreadyHit(combinaison, remainingHit):
                                 remainingHits.remove(remainingHit)
                         remainingHP = self.hp - somme_actuelle
-                        print()
-                        print("About to determine the last hits, current combination is :")
-                        for hit in combinaison:
-                            hit.dumpInfo()
-                        print()
+                        #print()
+                        #print("About to determine the last hits, current combination is :")
+                        #for hit in combinaison:
+                           #hit.dumpInfo()
+                        #print()
                         lastHits = self.determineLastHits(remainingHitsSortedByPlayerWeight, remainingHP)
                         for lastHit in lastHits:
                             combinaison.append(lastHit)
                         self.finalHits = Utilities.getReversedList(combinaison)
                         return self.finalHits
-                if hit.playerWeight > 0.1:
+                if hit.bossWeight > 0.01:
                     combinaison.append(hit)
                     somme_actuelle += hit.dmg
 
@@ -156,7 +167,7 @@ class Boss:
                 self.finalHits = Utilities.getReversedList(combinaison)
                 return self.finalHits
 
-        print("Ended hits computation for boss :", self.name)
+        #print("Ended hits computation for boss :", self.name)
 
         #  TODO post-process to run 1 or 2 lowest hits to complete the boss ?
         #  TODO only take the biggest hit from a player, not multiple per boss

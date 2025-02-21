@@ -1,3 +1,11 @@
+from datetime import datetime, timezone
+
+
+def writeCurrentUTCTime():
+    utc_now = datetime.now(timezone.utc)  # Récupère l'heure actuelle en UTC
+    formatted_time = utc_now.strftime("%Y-%m-%d %H:%M:%S UTC+0")  # Formate la date
+    print(f"Runtime Date : {formatted_time}")
+
 def getReversedList(l):
     return l[::-1]
 

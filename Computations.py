@@ -12,8 +12,8 @@ class Computations:
         self.hitsDone = []  # Hits that were already done per boss
 
         #  Bosses data
-        self.errorMarginPercentage = 1.025
-        self.maxOverkillPercentage = 1.1
+        self.errorMarginPercentage = 1.0
+        self.maxOverkillPercentage = 1.05
 
         #  Bosses names
         self.B1Name = None
@@ -74,18 +74,20 @@ class Computations:
             print(player.name)
 
     def feedBossesNames(self):
-        self.B1Name = "Laitance"
-        self.B2Name = "Heavy Metal"
-        self.B3Name = "Nihilister"
-        self.B4Name = "Rb Obelisk"
-        self.B5Name = "Gravedigger"
+        self.B1Name = "Thermite B"
+        self.B2Name = "Mace"
+        self.B3Name = "Alexander"
+        self.B4Name = "Rb Fingers"
+        self.B5Name = "Harvester"
 
     def feedBossesHPs(self):
-        self.B1T1HP = int(29225662800 * self.errorMarginPercentage)
-        self.B2T1HP = int(29225662800 * self.errorMarginPercentage)
-        self.B3T1HP = int(65385671800 * self.errorMarginPercentage)
-        self.B4T1HP = int(29225662800 * self.errorMarginPercentage)
+        self.B1T1HP = int(21255027600 * self.errorMarginPercentage)
+        self.B2T1HP = int(21255027600 * self.errorMarginPercentage)
+        self.B3T1HP = int(47553215600 * self.errorMarginPercentage)
+        self.B4T1HP = int(21255027600 * self.errorMarginPercentage)
         self.B5T1HP = int(47553215600 * self.errorMarginPercentage)
+
+        # T2... do not touch for now
         self.B1T2HP = int(137302384800 * self.errorMarginPercentage)
         self.B2T2HP = int(137302384800 * self.errorMarginPercentage)
         self.B3T2HP = int(207407492800 * self.errorMarginPercentage)
@@ -170,7 +172,7 @@ class Computations:
                 hit.bossWeight = (hit.dmg - lowestDmg) / (topDmg - lowestDmg)
 
     def initBossHits(self, ignoredHits, boss):
-        print("Starting gen hits for boss :", boss.name)
+        #print("Starting gen hits for boss :", boss.name)
         bossHits = []
         # Feed all hits for this boss - TODO can be faster by doing a pre-filtering on comps
         for player in self.players:
@@ -191,20 +193,20 @@ class Computations:
                     bossHits.append(hit)
 
         boss.genHits(bossHits)
-        print("Correctly gen hits for boss :", boss.name)
+        #print("Correctly gen hits for boss :", boss.name)
 
 
     def computeOptimalHits(self, boss):
         best_combination = boss.findClosestCombination(self.players, self.maxOverkillPercentage)
-        print("Best combination for boss :", boss.name, "--- HP :", boss.hp)
+        #print("Best combination for boss :", boss.name, "--- HP :", boss.hp)
         totalDmg = 0
         for hit in best_combination:
             #hit.dumpInfo()
             totalDmg += hit.dmg
 
-        print("Total dmg :", totalDmg)
-        print("Overkill dmg :", totalDmg - boss.hp)
-        print("Overkill percentage :", round((totalDmg - boss.hp) / boss.hp * 100, 3), "%")
+        #print("Total dmg :", totalDmg)
+        #print("Overkill dmg :", totalDmg - boss.hp)
+        #print("Overkill percentage :", round((totalDmg - boss.hp) / boss.hp * 100, 3), "%")
         return best_combination
 
     def dumpIgnoredHits(self):
@@ -227,6 +229,8 @@ class Computations:
             self.hitsDone.append(hit)
 
     def genSolutions(self):
+        Utilities.writeCurrentUTCTime()
+        print()
         for bossIndex, boss in enumerate(self.bosses):
             if bossIndex <= 4: #  Failsafe, only treat T1 for now
                 self.initBossHits(self.hitsDone, boss)
@@ -235,11 +239,11 @@ class Computations:
                 bossHits = self.computeOptimalHits(boss)
                 self.updatePlayerHitCount(bossHits)
                 self.appendToIgnoredHits(bossHits)
-                print()
-                print()
+                #print()
+                #print()
                 boss.dumpHitRoute(self.players, self.errorMarginPercentage, self.maxOverkillPercentage)
-                print()
+                #print()
                 #print("Dump done hits :")
-                print()
+                #print()
                 #self.dumpIgnoredHits()
                 print()
